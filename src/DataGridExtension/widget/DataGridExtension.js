@@ -1,28 +1,24 @@
 //mxui.dom.addCss(require.toUrl("DataGridExtension/widget/ui/DataGridExtension.css"));
-
-require([
-    "dojo/_base/declare",
-    "mxui/widget/_WidgetBase",
-    "dijit/_TemplatedMixin",
-    "DataGridExtension/widget/PagingButtons", 
-    "DataGridExtension/widget/EmptyTable", 
-    "DataGridExtension/widget/ToolbarButtons", 
-    "DataGridExtension/widget/RowClasses", 
-    "DataGridExtension/widget/InlineButtons", 
-    "DataGridExtension/widget/FlexColumns", 
-    "dojo/text!DataGridExtension/widget/ui/DataGridExtension.html"],
+define([
+        "dojo/_base/declare",
+        "mxui/widget/_WidgetBase",
+        "dijit/_TemplatedMixin",
+        "DataGridExtension/widget/PagingButtons",
+        "DataGridExtension/widget/EmptyTable",
+        "DataGridExtension/widget/ToolbarButtons",
+        "DataGridExtension/widget/RowClasses",
+        "DataGridExtension/widget/InlineButtons",
+        "DataGridExtension/widget/FlexColumns",
+        "dojo/text!DataGridExtension/widget/ui/DataGridExtension.html"
+    ],
     function(declare, _WidgetBase, _TemplatedMixin, Paging, EmptyTable, ToolbarButtons, RowClasses, InlineButtons, FlexColumns, template) {
         //"use strict";
-    
         var widget = {
             templateString: template,
-
             inputargs: {
-                 gridName: ''
+                gridName: ''
             },
-
             grid: null,
-
             // version: 2.4.2
             // Date: 25 March 2015
             // Author:  Andries Smit
@@ -86,55 +82,44 @@ require([
             // DONE splitting functions in different files and use AMD loading.
             // FIXED issues with MX 5.10 (removeContext
             // FIXED issue with Grid data source MF, caused an exception because it is not sortable
-
-
             postCreate: function() {
                 // post create function of dojo widgets.
                 // TODO Check if objects are not accidently shared by object. 
-
                 try {
                     //var colindex = this.domNode.parentNode.cellIndex;
-                    var domList = document.getElementsByClassName('mx-name-'+this.gridName);
-
-                    if(domList.length > 0)
-                        this.grid = dijit.byNode( domList[domList.length -1] );
-                    
+                    var domList = document.getElementsByClassName('mx-name-' + this.gridName);
+                    if (domList.length > 0)
+                        this.grid = dijit.byNode(domList[domList.length - 1]);
                     if (this.grid === null) {
-                        this.showError("Error: unable to find grid with name "+this.gridName);
+                        this.showError("Error: unable to find grid with name " + this.gridName);
                         //this.loaded();
                         return;
                     }
-
                     if (this.grid.declaredClass === "mxui.widget.ReferenceSetSelector")
                         this.grid = this.grid._datagrid;
-
                     this.postCreateInlineButtons();
                     this.postCreatePagingButtons();
                     this.postCreateRowClasses();
                     this.postCreateToolbarButtons();
                     this.postCreateFlexColumns();
                     this.postCreateEmptyTable();
-
                 } catch (e) {
                     this.showError("error in create widget:" + e);
                 }
                 //this.loaded();
             },
-
             showError: function(msg) {
                 console.error(msg);
                 this.domNode.appendChild(mxui.dom.create("div", {
                     style: "color:red"
                 }, msg));
             },
-
             uninitialize: function() {
                 //is there anything left to destroy?
             }
-
         };
-        declare("DataGridExtension.widget.DataGridExtension", [_WidgetBase, _TemplatedMixin, Paging, EmptyTable, ToolbarButtons, RowClasses, InlineButtons, FlexColumns], widget);
-        declare("DataGridExtension.widget.DataGridExtensionNoContext", [_WidgetBase, _TemplatedMixin, Paging, EmptyTable, ToolbarButtons, RowClasses, InlineButtons, FlexColumns], widget);
+        return declare("DataGridExtension.widget.DataGridExtension", [_WidgetBase, _TemplatedMixin, Paging, EmptyTable, ToolbarButtons, RowClasses, InlineButtons, FlexColumns], widget);
+        // declare("DataGridExtension.widget.DataGridExtensionNoContext", [_WidgetBase, _TemplatedMixin, Paging, EmptyTable, ToolbarButtons, RowClasses, InlineButtons, FlexColumns], widget);
     });
-    
+require(["DataGridExtension/widget/DataGridExtension"]);
 //@ sourceURL=widgets/DataGridExtension/widget/DataGridExtension.js

@@ -6,48 +6,37 @@ define([
     "mxui/widget/_WidgetBase"
 ], function(declare, _WidgetBase) {
     //"use strict";
-    
     return declare(null, {
-
         selectionButtons: [],
         nonSelectionButtons: [],
         hideOnEmptyButtons: [],
         showOnEmptyButtons: [],
         selectAllButtons: [],
-
         dataView: null,
-
         inputargs: {
             hideUnusableButtons: false
         },
-
         checkConfigToolbarButtons: function() {
-
         },
-
         postCreateToolbarButtons: function() {
             this.checkConfigToolbarButtons();
-
             this.selectionButtons = [];
             this.nonSelectionButtons = [];
             this.hideOnEmptyButtons = [];
             this.showOnEmptyButtons = [];
             this.setButtons = [];
-
-            var dvNode = dojo.query(this.domNode).closest(".mx-dataview")[0];
+            var dvNode = dojo.query(this.domNode)
+                .closest(".mx-dataview")[0];
             if (dvNode)
                 this.dataView = dijit.byNode(dvNode); // data view for conditional visible buttons
-
             if (this.hideUnusableButtons) {
                 this.setupControlbarButtonVisibility();
             }
             //this.loaded();
         },
-
         // ---------------------------------------------------------------------
         // Section for Controlbar Button Visibility
         // ---------------------------------------------------------------------
-
         setupControlbarButtonVisibility: function() {
             // Append empty div, so height is not bar is not collapsing (issue does not apply when there multiple lines of buttons
             if (this.grid.toolBarNode.childNodes[0]) { // has buttons
@@ -57,10 +46,8 @@ define([
                 });
                 this.grid.toolBarNode.appendChild(spacer);
             }
-
             for (var i = 0; i < this.grid.toolBarNode.childNodes.length; i++) {
                 if (this.grid.toolBarNode.childNodes[i].nodeName === "BUTTON") {
-
                     var actionKey = this.grid.toolBarNode.childNodes[i].getAttribute("data-mendix-id");
                     if (actionKey) {
                         if (!dojo.hasClass(this.grid.toolBarNode.childNodes[i], "ignoreRowSelectionVisibility")) {
@@ -72,7 +59,6 @@ define([
                                 this.hideOnEmptyButtons.push(this.grid.toolBarNode.childNodes[i]);
                             if (dojo.hasClass(this.grid.toolBarNode.childNodes[i], "showOnEmpty"))
                                 this.showOnEmptyButtons.push(this.grid.toolBarNode.childNodes[i]);
-
                             var action = this.grid._gridConfig.getActionsByKey(actionKey);
                             if (action.actionCall === "InvokeMicroflow") {
                                 if (action.params) {
@@ -100,20 +86,15 @@ define([
             this.connect(this.grid, "eventGridRowClicked", this.selectChangeControlBarButtons); //mx5.3
             this.connect(this.grid, "eventItemClicked", this.selectChangeControlBarButtons); //mx 5.4
             this.connect(this.grid, "actionEditSelection", this.selectChangeControlBarButtons);
-
             this.connect(this.grid, "selectRow", this.selectChangeControlBarButtons);
             this.connect(this.grid, "deselectRow", this.selectChangeControlBarButtons);
             this.connect(this.grid, "fillGrid", this.selectChangeControlBarButtons);
-
             this.connect(this.dataView, "applyConditions", this.selectChangeControlBarButtons); // for conditional views            
         },
-
         checkVisable: function(node) {
             // check Conditional view By modeller on data view
             if (this.dataView) {
-
                 var cf = this.dataView.getCFAction ? [this.dataView.getCFAction(node)] : this.dataView.getCFActions(node);
-
                 for (var i = 0; i < cf.length; i++) {
                     if (cf[i] === "hide") {
                         return false;
@@ -124,22 +105,18 @@ define([
                 return true;
             }
         },
-
         selectChangeControlBarButtons: function() {
             var countSelected = 0;
-            
-            if(this.grid.hasOwnProperty("_selectedGuids")){
+            if (this.grid.hasOwnProperty("_selectedGuids")) {
                 if (this.grid._selectedGuids) // before mx 5.11 
-                    countSelected = this.grid._selectedGuids.length; 
+                    countSelected = this.grid._selectedGuids.length;
             } else {
-                if (this.grid.selection)    // from mx 5.11
+                if (this.grid.selection) // from mx 5.11
                     countSelected = this.grid.selection.length;
             }
-            
-            var gridSize = this.grid.getCurrentGridSize ? this.grid.getCurrentGridSize() : 
-                    this.grid.hasOwnProperty("_selectedGuids") ?  this.grid._datagrid.getCurrentGridSize() :
-                    this.grid.hasOwnProperty("_dataSource") ? this.grid._dataSource.getSetSize() : 0;
-            
+            var gridSize = this.grid.getCurrentGridSize ? this.grid.getCurrentGridSize() :
+                this.grid.hasOwnProperty("_selectedGuids") ? this.grid._datagrid.getCurrentGridSize() :
+                this.grid.hasOwnProperty("_dataSource") ? this.grid._dataSource.getSetSize() : 0;
             if (countSelected > 0) {
                 // show the buttons that need a row selection
                 for (var i = 0; i < this.selectionButtons.length; i++) {
@@ -156,7 +133,6 @@ define([
                         dojo.style(this.selectAllButtons[i], "display", "none");
                     }
                 }
-
             } else {
                 // hide buttons that need a selection.
                 for (var i = 0; i < this.selectionButtons.length; i++) {
@@ -198,8 +174,6 @@ define([
                 }
             }
         }
-
     });
 });
-
 //@ sourceURL=widgets/DataGridExtension/widget/ToolbarButtons.js

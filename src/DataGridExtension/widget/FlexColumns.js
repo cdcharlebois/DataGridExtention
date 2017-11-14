@@ -824,7 +824,8 @@ define([
                 var _c7d = $("th");
                 this.domData(_c7d, {
                     datakey: _c7c.tag,
-                    index: i
+                    index: i,
+					sortable: !1 !== t.sortable					
                 });
                 this.setColumnStyle(_c7d, _c7c);
                 var _c7e = $("span", {

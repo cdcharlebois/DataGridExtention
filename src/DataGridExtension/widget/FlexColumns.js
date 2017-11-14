@@ -825,7 +825,7 @@ define([
                 this.domData(_c7d, {
                     datakey: _c7c.tag,
                     index: i,
-					sortable: !1 !== t.sortable					
+					sortable: !1 !== _c7c.sortable
                 });
                 this.setColumnStyle(_c7d, _c7c);
                 var _c7e = $("span", {

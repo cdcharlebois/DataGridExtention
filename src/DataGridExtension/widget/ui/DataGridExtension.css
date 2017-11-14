@@ -3,7 +3,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
-/* 
+/*
     Created on : 16-mrt-2014, 13:43:15
     Author     : smita
 */
@@ -17,4 +17,15 @@ and open the template in the editor.
 
  .contextMenu{
     position: fixed; display:none;
+ }
+
+ /* ----------------------------------------------
+ Automatic column width support (requires JS too)
+    ---------------------------------------------- */
+ .grid-auto-width td, .grid-auto-width th, .grid-auto-width th div {
+    white-space: nowrap !important;
+ }
+
+ .grid-auto-width .mx-grid-content {
+    overflow-x:scroll;
  }

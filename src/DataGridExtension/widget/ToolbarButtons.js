@@ -16,8 +16,7 @@ define([
         inputargs: {
             hideUnusableButtons: false
         },
-        checkConfigToolbarButtons: function() {
-        },
+        checkConfigToolbarButtons: function() {},
         postCreateToolbarButtons: function() {
             this.checkConfigToolbarButtons();
             this.selectionButtons = [];

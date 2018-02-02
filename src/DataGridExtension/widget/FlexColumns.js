@@ -10,8 +10,11 @@ define([
     "dojo/dnd/Mover",
     "dojo/dom-geometry",
     "mxui/lib/ColumnResizer",
+	"dojo/dom-class",
+	"dojo/aspect",
+	"dojo/_base/lang",
     "dojo/NodeList-traverse"
-], function(declare, _WidgetBase, JSON, Moveable, event, Mover, domGeom, ColumnResizer) {
+], function(declare, _WidgetBase, JSON, Moveable, event, Mover, domGeom, ColumnResizer, domClass, aspect, dojoLang) {
     //"use strict";
     return declare(null, {
         gridAttributesOrg: null,
@@ -102,7 +105,13 @@ define([
                     this.getColumnMenu();
                     this.setHandlers();
                 }));
+
             }
+
+			if (this.autosizeColumns) {
+				domClass.add(this.grid, "grid-auto-width");
+				aspect.after(this.grid,"fillGrid", dojoLang.hitch(this,this.columnAutosizer));
+			}
         },
         supports_html5_storage: function() {
             // Checks if local storage is supported in the browser.
@@ -308,7 +317,7 @@ define([
             if (!att) { // add attribute if not in collection
                 for (var i = 0; i < this.gridAttributesOrg.length; i++) {
                     if (this.gridAttributesOrg[i].tag === tag) {
-                        att = dojo.clone(this.gridAttributesOrg[i]); // keep sore copy original                         
+                        att = dojo.clone(this.gridAttributesOrg[i]); // keep sore copy original
                         this.gridAttributes.push(att);
                         break;
                     }
@@ -331,17 +340,50 @@ define([
             this.distributeColumnWidth(this.gridAttributesStore);
         },
         distributeColumnWidth: function(attrs) {
-            var total = 0; // count total
-            for (var i = 0; i < attrs.length; i++) {
-                total += parseFloat(attrs[i].display.width, 10);
-            }
-            //redistribute the width over the 100%
-            for (var i = 0; i < attrs.length; i++) {
-                var width = (parseFloat(attrs[i].display.width, 10) / total) * 100;
-                attrs[i].display.width = (Math.round(width) === 0) ? "0%" : width.toString() + "%";
-                attrs[i].order = i;
-            }
+			if (this.autosizeColumns) {
+				this.columnAutosizer();
+			} else {
+				var total = 0; // count total
+				for (var i = 0; i < attrs.length; i++) {
+					total += parseFloat(attrs[i].display.width, 10);
+				}
+				//redistribute the width over the 100%
+				for (var i = 0; i < attrs.length; i++) {
+					var width = (parseFloat(attrs[i].display.width, 10) / total) * 100;
+					attrs[i].display.width = (Math.round(width) === 0) ? "0%" : width.toString() + "%";
+					attrs[i].order = i;
+				}
+			}
         },
+		columnAutosizer: function () {
+			var dg = this.grid,
+			totalWidth = 0;
+			dg.headTable.style = "width: auto";
+			dg.gridTable.style = "width: auto";
+			for (var i=0; i<dg.headTableGroupNode.children.length; i++) {
+				dg.headTableGroupNode.children[i].style = "";
+				dg.bodyTableGroupNode.children[i].style = "";
+			}
+
+			for (var i=0; i<dg._gridColumnNodes.length; i++) {
+			    var thisCol = dg._gridColumnNodes[i];
+			    var thisColMax = thisCol.offsetWidth;
+			    for (var j=0; j<dg._gridMatrix.length; j++) {
+			        var thisWidth = dg._gridMatrix[j][i].offsetWidth + 14;
+			        if (thisWidth > thisColMax) {thisColMax = thisWidth};
+			    }
+				dg.headTableGroupNode.children[i].style = "width: " + thisColMax + "px";
+				dg.bodyTableGroupNode.children[i].style = "width: " + thisColMax + "px";
+
+			    //dg._gridColumnNodes[i].style = "width: " + thisColMax + "px";
+			    //for (var j=0; j<dg._gridMatrix.length; j++) {
+			        //dg._gridMatrix[j][i].style = "width: " + thisColMax + "px";
+			    //}
+				totalWidth = totalWidth + thisColMax;
+			}
+			dg.headTable.style = "min-width: " + totalWidth + "px"
+			dg.gridTable.style = "min-width: " + totalWidth + "px"
+		},
         updateColumnvisibility: function(evt) {
             // update the column visibility
             if (this.columnChanges.length > 0) {
@@ -395,7 +437,7 @@ define([
             dojo.stopEvent(evt);
         },
         onSubMenuEnter: function(evt) {
-            // open sub menu item, 
+            // open sub menu item,
             dojo.addClass(evt.target.parentNode, "open");
             dojo.stopEvent(evt);
         },
@@ -457,7 +499,7 @@ define([
             this.grid._gridMatrix = [];
         },
         endResize: function(evt) {
-            // event triggered after the resize is done. 
+            // event triggered after the resize is done.
             // Stores the new size settings.
             var cols = this.grid._resizer.columns,
                 total = 0;
@@ -643,7 +685,7 @@ define([
                     this.gridAttributes[i].moving = false;
             }
             var compareXPos = function(a, b) {
-                // Javascript array Sort function: 
+                // Javascript array Sort function:
                 // returns less than zero, sort a before b
                 // return greater than zero, sort b before a
                 // returns zero, leave a and be unchanged with respect to each other
@@ -695,6 +737,9 @@ define([
             this.reloadGridHeader();
             this.clearGridDataNodes();
             this.grid.fillGrid();
+			if (this.autosizeColumns) {
+				this.columnAutosizer();
+			}
         },
         setHandlers: function() {
             // enable the context menu and connect with the resizer
@@ -725,7 +770,7 @@ define([
             // this is needed otherwise the handlers will be create multiple times
             // replace this -> this.grid (execpt for in the forEach)
             // Added the following line to enable responsive columns viewing (disabled its bugging?):
-            // line  class: _c15.display.cssClass ? _c15.display.cssClass: "" 
+            // line  class: _c15.display.cssClass ? _c15.display.cssClass: ""
             // for more changes see inline comments
             var _c4d = mxui.dom;
             var self = this.grid,
@@ -779,7 +824,8 @@ define([
                 var _c7d = $("th");
                 this.domData(_c7d, {
                     datakey: _c7c.tag,
-                    index: i
+                    index: i,
+					sortable: !1 !== _c7c.sortable
                 });
                 this.setColumnStyle(_c7d, _c7c);
                 var _c7e = $("span", {
@@ -832,6 +878,10 @@ define([
                 tableNode: this.grid.headTable,
                 gridNode: this.grid.gridTable
             });
+            if(this.autosizeColumns) {
+            	this.grid._resizer.recalculate = function(){};
+				this.grid._resizer.prepareTable = function(){};
+            }
             if (this.grid._gridState.showemptyrows) {
                 var _c86 = this.grid._gridConfig.gridSetting("rows");
                 for (var i = 0; i < _c86; i++) {
@@ -886,4 +936,3 @@ define([
         }
     });
 });
-//@ sourceURL=widgets/DataGridExtension/widget/FlexColumns.js

@@ -47,6 +47,8 @@ define([
                                 var classes = self.inlineButtons[i].cssClass ? self.inlineButtons[i].cssClass : "";
                                 classes = self.inlineButtons[i].buttonStyle === "link" ? classes : classes + " btn-" + self.inlineButtons[i].buttonStyle;
                                 var td = gridMatrixRow[col];
+                                var ctx = new mendix.lib.MxContext();
+
                                 if (!self.inlineButtons[i].valueCaption || self.inlineButtons[i].valueCaption && td.firstChild.innerHTML !== "&nbsp;") {
                                     var img = td.querySelector('img');
                                     var button = new mxui.widget.Button({
@@ -63,13 +65,33 @@ define([
                                     dojo.addClass(td, "inlineButtonContainer");
                                     td.innerHTML = "";
                                     td.appendChild(dataContainer);
-                                    if (first) {
-                                        dataContainer.innerHTML = button.domNode.outerHTML;
-                                        first = false;
+                                    // self._pageRenderedCounter = self._pageRenderedCounter || [];
+                                    if (self.inlineButtons[i].pageInstead) {
+                                        // self._pageRenderedCounter.push(gridMatrixRow[col])
+                                        dataContainer.innerHTML = "";
+                                        ctx.setTrackObject(mxobj);
+                                        mx.ui.openForm(self.inlineButtons[i].page, {
+                                            domNode: dataContainer,
+                                            context: ctx,
+                                            callback: function(f) {
+                                                var container = f.domNode.parentElement;
+                                                if (container) {
+                                                    container.innerHTML = "";
+                                                    container.appendChild(f.domNode);
+                                                }
+                                            }
+                                        });
                                     } else {
-                                        dataContainer.appendChild(button.domNode);
+                                        if (first) {
+                                            dataContainer.innerHTML = button.domNode.outerHTML;
+                                            first = false;
+                                        } else {
+                                            dataContainer.appendChild(button.domNode);
+                                        }
                                     }
+
                                 }
+
                             }
                         }
                     }
@@ -113,8 +135,7 @@ define([
                         applyto: "selection",
                         guids: [rowObject.getGuid()]
                     },
-                    callback: function() {
-                    },
+                    callback: function() {},
                     error: function(e) {
                         logger.error("DataGridExtension.widget.InlineButtonsn.onclickEventInline: XAS error executing microflow" + e);
                     }

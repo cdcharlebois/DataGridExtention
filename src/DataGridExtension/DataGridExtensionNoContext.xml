@@ -140,6 +140,16 @@
 			<category>Inline Button</category>
 			<description>Create buttons inline</description>
 			<properties>
+				<property key="pageInstead" type="boolean" defaultValue="false">
+				  <caption>Render a page</caption>
+				  <category>Appearance</category>
+				  <description>render a page instead of a button</description>
+				</property>
+				<property key="page" type="form" required="false">
+				  <caption>Page</caption>
+				  <category>Appearance</category>
+				  <description>Page will be rendered inline.</description>
+				</property>
 				<property key="column" type="integer" required="true" defaultValue="0">
                                         <caption>Column</caption>
                                         <category>Appearance</category>
